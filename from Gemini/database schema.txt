@@ -1,0 +1,106 @@
+**Database Schema**
+Table: leads (Existing, ~40M+ rows)
+
+(Schema as previously defined, including id PK and status)
+
+Table: crm_contacts (Needs creation - stores processed leads)
+
+id INT AUTO_INCREMENT PRIMARY KEY
+
+original_lead_id INT NULL (Foreign key linking back to leads.id, optional but recommended)
+
+title VARCHAR(50) NULL
+
+first_name VARCHAR(255) NULL
+
+last_name VARCHAR(255) NULL
+
+job_title VARCHAR(255) NULL
+
+email VARCHAR(255) NULL - INDEXED
+
+mobile VARCHAR(100) NULL
+
+phone VARCHAR(100) NULL
+
+company_name VARCHAR(255) NULL - INDEXED
+
+country_location VARCHAR(100) NULL (Dropdown?) - INDEXED
+
+industry VARCHAR(100) NULL (Dropdown?) - INDEXED
+
+sector VARCHAR(100) NULL (Dropdown?) - INDEXED
+
+closeness INT NULL (0-10?)
+
+partnership_priority VARCHAR(50) NULL (Dropdown?)
+
+annual_value_expected DECIMAL(15, 2) NULL
+
+size_of_company VARCHAR(50) NULL (Dropdown?)
+
+products_of_interest VARCHAR(255) NULL (Dropdown? Multi-select?)
+
+potential_upsell_products VARCHAR(255) NULL (Dropdown? Multi-select?)
+
+lead_classification VARCHAR(50) NULL (Dropdown, e.g., 'Customer (potential)') - INDEXED
+
+lead_source VARCHAR(50) NULL (Dropdown?)
+
+fit VARCHAR(50) NULL (Dropdown?)
+
+website VARCHAR(500) NULL
+
+secondary_email VARCHAR(255) NULL
+
+city VARCHAR(100) NULL
+
+street VARCHAR(255) NULL
+
+postal_code VARCHAR(50) NULL
+
+province VARCHAR(100) NULL (State/County)
+
+lead_status VARCHAR(50) NULL (Dropdown, e.g., 'Don't know') - INDEXED
+
+present_status VARCHAR(50) NULL (Dropdown?) - INDEXED
+
+send_newsletter BOOLEAN DEFAULT FALSE
+
+last_contacted DATE NULL
+
+next_action VARCHAR(255) NULL
+
+next_action_date DATE NULL - INDEXED
+
+allocated_to VARCHAR(100) NULL (Dropdown - User/Team?)
+
+number_emails_sent INT DEFAULT 0
+
+number_calls_made INT DEFAULT 0
+
+number_messages_whatsapp INT DEFAULT 0 (Assuming this maps)
+
+comment_1 TEXT NULL
+
+comment_2 TEXT NULL
+
+comment_3 TEXT NULL
+
+created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+
+updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+
+(Other fields from screenshots like Lead Owner, Creation Dates etc. can be added)
+
+Supporting Tables (for Dropdowns):
+
+dropdown_options (Example structure)
+
+id INT AUTO_INCREMENT PRIMARY KEY
+
+field_name VARCHAR(50) NOT NULL (e.g., 'industry', 'lead_status') - INDEXED
+
+option_value VARCHAR(255) NOT NULL
+
+is_active BOOLEAN DEFAULT TRUE
