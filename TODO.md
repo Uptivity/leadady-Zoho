@@ -1,40 +1,32 @@
 # LeadSpark CRM – Continuation Checklist
 
-## Immediate Next Steps
-1. **Lead Filtering Dashboard**
-   - Build `resources/views/leads/index.blade.php` (or reuse `dashboard.blade.php`) with inputs for Industry, Company Industry, and Location plus “has” checkboxes.
-   - Wire front-end JS (Vite entry in `resources/js/app.js`) to debounce input changes, call a new route (e.g., `Route::post('/leads/counts')`) via Fetch, and update live count elements.
-   - Create controller (e.g., `app/Http/Controllers/LeadFilterController.php`) with `counts()` method querying `leads` table using `LIKE` clauses and aggregate counts.
-   - Ensure middleware `crm.auth` wraps all lead routes; reuse CSRF token from meta tag on AJAX calls.
+## Immediate Next Steps (BigQuery + API Pull)
+1. Lead Filtering Dashboard (BigQuery)
+   - [Done] Filter UI + required toggles; counts + preview wiring.
+   - Add any extra “not blank” toggles you need.
 
-2. **Apply Filters Action & Paginated Results**
-   - Add `Route::get('/leads')` that receives all filter params (text + “has” requirements) and returns paginated results (`->paginate(100)`).
-   - Render table with columns defined in `FEATURE_Lead_Display.md`; include placeholder tagging button/checkbox per row (data attribute with lead id).
-   - Preserve filter state across pagination (append query string).
+2. BigQuery Queries
+   - [In Code] Parameterized SQL in `BigQueryService` for counts, preview, iterate (requires `google/cloud-bigquery`).
+   - Validate WHERE builder against actual data (case-insensitive LIKEs on Industry, Company_Industry, Location).
 
-3. **Tagging Endpoint**
-   - Implement `Route::post('/leads/{lead}/tag')` (AJAX) calling `LeadTagController@store`; update `status` to `tagged`.
-   - Return JSON payload so UI can disable or restyle the tagged row.
-   - Add Feature tests covering tag endpoint and middleware protection.
+3. Pull to Destination via API (No CSV)
+   - [Scaffolded] `POST /pull/start`, `GET /pull/{id}/status`, job state via `pull_jobs`.
+   - Implement retries/backoff (after API contract) and idempotency.
 
-## Subsequent Milestones
-4. **Process Tagged Leads**
-   - Create migration for `crm_contacts` using schema from `from gemini/database schema.txt` (include indexes).
-   - Build service/command (e.g., `ProcessTaggedLeadsAction`) triggered by UI button to run transaction: insert into `crm_contacts` via `INSERT ... SELECT`, then mark processed leads.
-   - Add progress feedback (flash message or JSON response) with counts.
+4. Mapping & Transform
+   - Fill `config/lead_mapping.php` using the PDF mapping. Use array form for multi-source fields to auto-join with ". ".
+   - Add dropdown normalization rules if required (nearest option mapping).
 
-5. **Dropdown Admin**
-   - Migration + model `DropdownOption`; seeder `DropdownOptionsSeeder` with baseline values.
-   - Admin screens for CRUD (list grouped by field, toggle `is_active`, no hard deletes).
-   - Protect routes with `crm.auth`; add feature tests ensuring option visibility.
+## Next Milestones
+5. Reliability & Ops
+   - Tune `DEST_BATCH_SIZE` and `PULL_MAX_ROWS` per API/BigQuery limits.
+   - Add basic metrics/logging and PII redaction where needed.
 
-6. **Contact Management**
-   - Index + detail controllers for `crm_contacts`; integrate dropdown options and validation.
-   - Activity log table (`contact_activities`), model, and UI components for logging interactions; update `last_contacted`.
-   - Add coverage for list filters, edits, and activity creation.
+6. Tests
+   - Unit-test WHERE builder and transformer (single and multi-column joins, trimming, dedupe).
+   - Feature-test endpoints with faked services (no real BigQuery/API calls).
 
 ## Housekeeping
-- Update `database/seeders/DatabaseSeeder.php` to register new seeders.
-- Consider extracting filter/query logic into dedicated classes under `app/Services/Leads`.
-- Once Vite assets exist, remove the testing guard in `resources/views/components/layouts/app.blade.php` if desired or document the requirement.
-- Document final commands and architecture additions in `README.md` before hand-off.
+- Add `docs/WHAT_IS_REQUIRED.md` with pending integrations and inputs. [Done]
+- Install `google/cloud-bigquery` in your environment to enable live queries.
+- Rotate any committed keys; keep credentials out of the repo.

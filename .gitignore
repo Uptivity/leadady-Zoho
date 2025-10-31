@@ -25,3 +25,11 @@ node_modules/
 .env
 vendor/
 .idea/ .vscode/
+
+# GCP/BigQuery service account keys (never commit)
+*bigquery*-key*.json
+*gcp*-service-*.json
+*service-account*.json
+*-credentials.json
+*credentials.json
+leads-bigquery-*.json
